@@ -1,3 +1,22 @@
+use clap::{clap_app, crate_version};
+use pulldown_cmark::{html::push_html, Event, Parser};
+
 fn main() {
-    println!("Hello, world!");
+    let clap = clap_app!(mdrend =>
+    (version:crate_version!())
+    (author: "Abey Onalaja")
+    (about: "Renders markdown")
+    (@arg input: +required "sets the input file")
+    )
+    .get_matches();
+
+    println!("Input = {:?}", clap.value_of("input"));
+
+    let infile =
+        std::fs::read_to_string(clap.value_of("input").unwrap()).expect("Could not read file");
+
+    let mut res = String::new();
+    let ps = Parser::new(&infile);
+    push_html(&mut res, ps.into_iter());
+    println!("{}", res);
 }
